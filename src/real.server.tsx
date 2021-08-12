@@ -38,7 +38,7 @@ const jsScriptTagsFromAssets = (
 const server = express();
 
 export const renderApp = async (req, res) => {
-  const public_path = `https://${CODESANDBOX_HOST}/`;
+  const public_path = typeof CODESANDBOX_HOST !== 'undefined' ? `https://${CODESANDBOX_HOST}/` : 'http://localhost:3001/';
 
   const context = {};
   const markup = renderToString(

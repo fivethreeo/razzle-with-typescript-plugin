@@ -1,7 +1,8 @@
 "use strict";
 
-const hostparts = process.env.HOSTNAME.match(/(\w+)-\w+-(\w+)/);
-const publichost = `${hostparts[2]}.${hostparts[1]}.codesandbox.io`;
+const hostparts = (process.env.HOSTNAME||'').match(/(\w+)-\w+-(\w+)/);
+const publichost = /codesandbox/.test((process.env.HOSTNAME||''))
+  && `${hostparts[2]}.${hostparts[1]}.codesandbox.io`;
 
 module.exports = {
   plugins: ["typescript"],
@@ -9,7 +10,9 @@ module.exports = {
     const config = opts.webpackConfig;
 
     if (opts.env.target === "web" && opts.env.dev) {
-      config.devServer.public = `${publichost}:443`;
+      if (publichost) {
+        config.devServer.public = `${publichost}:443`;
+      }
       config.devServer.proxy = {
         context: () => true,
         target: "http://localhost:3000"
@@ -31,9 +34,11 @@ module.exports = {
     },
     paths // the modified paths that will be used by Razzle.
   }) {
-    webpackOptions.definePluginOptions["CODESANDBOX_HOST"] = JSON.stringify(
-      publichost
-    );
+    if (publichost) {
+      webpackOptions.definePluginOptions["CODESANDBOX_HOST"] = JSON.stringify(
+        publichost
+      );
+    }
     /*
     webpackOptions.notNodeExternalResMatch = (request, context) => {
       return /stitches/.test(request);
